@@ -1,7 +1,11 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 using System.Text.Json.Serialization;
+using TesteStefanini.Application;
 using TesteStefanini.Infrastructure;
 using TesteStefanini.Infrastructure.Data;
 
@@ -13,6 +17,37 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // Adiciona os serviços de infraestrutura (repositórios)
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// Adiciona os serviços de aplicação
+builder.Services.AddApplication(builder.Configuration);
+
+// Configuração do JWT
+var jwtSettingsSection = builder.Configuration.GetSection("Jwt");
+builder.Services.Configure<JwtSettings>(jwtSettingsSection);
+
+var jwtSettings = jwtSettingsSection.Get<JwtSettings>();
+var key = Encoding.ASCII.GetBytes(jwtSettings?.Key ?? "ChaveSecretaParaGeracaoDeTokensJWT_TesteStefanini2025");
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidIssuer = jwtSettings?.Issuer,
+        ValidAudience = jwtSettings?.Audience,
+        ClockSkew = TimeSpan.Zero
+    };
+});
 
 // Adiciona controladores com opções
 builder.Services.AddControllers()
@@ -104,10 +139,19 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
-// Middleware de autenticação será adicionado posteriormente
-// app.UseAuthentication();
+// Middleware de autenticação
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
+
+// Classe para configuração do JWT
+public class JwtSettings
+{
+    public string Key { get; set; }
+    public string Issuer { get; set; }
+    public string Audience { get; set; }
+    public int DurationInMinutes { get; set; }
+}
