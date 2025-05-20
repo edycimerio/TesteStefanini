@@ -17,16 +17,20 @@ namespace TesteStefanini.UnitTests.Services
     public class PessoaServiceTests
     {
         private readonly Mock<IPessoaRepository> _mockRepository;
+        private readonly Mock<IEnderecoRepository> _mockEnderecoRepository;
         private readonly Mock<IMapper> _mockMapper;
         private readonly Mock<IValidator<Pessoa>> _mockValidator;
+        private readonly Mock<IValidator<Endereco>> _mockEnderecoValidator;
         private readonly PessoaService _service;
 
         public PessoaServiceTests()
         {
             _mockRepository = new Mock<IPessoaRepository>();
+            _mockEnderecoRepository = new Mock<IEnderecoRepository>();
             _mockMapper = new Mock<IMapper>();
             _mockValidator = new Mock<IValidator<Pessoa>>();
-            _service = new PessoaService(_mockRepository.Object, _mockMapper.Object, _mockValidator.Object);
+            _mockEnderecoValidator = new Mock<IValidator<Endereco>>();
+            _service = new PessoaService(_mockRepository.Object, _mockEnderecoRepository.Object, _mockMapper.Object, _mockValidator.Object, _mockEnderecoValidator.Object);
         }
 
         // GET ALL

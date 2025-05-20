@@ -1,0 +1,10 @@
+{
+  "Nome": "João Silva",
+  "Sexo": "Masculino",
+  "Email": "joao.silva@email.com",
+  "DataNascimento": "1990-01-15T00:00:00",
+  "Naturalidade": "São Paulo",
+  "Nacionalidade": "Brasileiro",
+  "CPF": "08650508057",
+  "Enderecos": []
+}

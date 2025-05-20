@@ -15,8 +15,7 @@ namespace TesteStefanini.Application
         {
             // Registra os serviços
             services.AddScoped<IPessoaService, PessoaService>();
-            services.AddScoped<IEnderecoService, EnderecoService>();
-            services.AddScoped<IPessoaEnderecoService, PessoaEnderecoService>();
+            services.AddScoped<IPessoaServiceV2, PessoaServiceV2>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUsuarioService, UsuarioService>();
 
