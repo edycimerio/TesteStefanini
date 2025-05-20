@@ -61,6 +61,79 @@ namespace TesteStefanini.UnitTests.Services
             // Assert
             Assert.NotNull(result);
             Assert.Equal(2, result.Count());
+            _mockEnderecoRepository.Verify(r => r.GetAllAsync(), Times.Once);
+            _mockMapper.Verify(m => m.Map<IEnumerable<EnderecoDto>>(enderecos), Times.Once);
+        }
+
+        // GET ALL COM PAGINAÇÃO
+        [Fact]
+        public async Task GetAllAsync_ComPaginacao_DeveRetornarResultadoPaginado()
+        {
+            // Arrange
+            var paginationParams = new PaginationParams { PageNumber = 1, PageSize = 10 };
+            var enderecos = new List<Endereco>
+            {
+                new Endereco("Rua A", "123", "Apto 101", "Centro", "São Paulo", "SP", "01001-000", Guid.NewGuid()),
+                new Endereco("Rua B", "456", "Casa", "Jardins", "São Paulo", "SP", "01002-000", Guid.NewGuid()),
+                new Endereco("Rua C", "789", "Sala 3", "Bela Vista", "São Paulo", "SP", "01003-000", Guid.NewGuid())
+            };
+
+            var enderecosDto = new List<EnderecoDto>
+            {
+                new EnderecoDto { Id = Guid.NewGuid(), Logradouro = "Rua A", Numero = "123" },
+                new EnderecoDto { Id = Guid.NewGuid(), Logradouro = "Rua B", Numero = "456" },
+                new EnderecoDto { Id = Guid.NewGuid(), Logradouro = "Rua C", Numero = "789" }
+            };
+
+            _mockEnderecoRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(enderecos);
+            _mockMapper.Setup(m => m.Map<IEnumerable<EnderecoDto>>(enderecos)).Returns(enderecosDto);
+
+            // Act
+            var resultado = await _service.GetAllAsync(paginationParams);
+
+            // Assert
+            Assert.NotNull(resultado);
+            Assert.Equal(3, resultado.TotalCount);
+            Assert.Equal(3, resultado.Items.Count());
+            Assert.Equal(1, resultado.CurrentPage);
+            Assert.Equal(10, resultado.PageSize);
+            _mockEnderecoRepository.Verify(r => r.GetAllAsync(), Times.Once);
+            _mockMapper.Verify(m => m.Map<IEnumerable<EnderecoDto>>(enderecos), Times.Once);
+        }
+
+        // GET BY PESSOA ID COM PAGINAÇÃO
+        [Fact]
+        public async Task GetByPessoaIdAsync_ComPaginacao_DeveRetornarResultadoPaginado()
+        {
+            // Arrange
+            var pessoaId = Guid.NewGuid();
+            var paginationParams = new PaginationParams { PageNumber = 1, PageSize = 10 };
+            var enderecos = new List<Endereco>
+            {
+                new Endereco("Rua A", "123", "Apto 101", "Centro", "São Paulo", "SP", "01001-000", pessoaId),
+                new Endereco("Rua B", "456", "Casa", "Jardins", "São Paulo", "SP", "01002-000", pessoaId)
+            };
+
+            var enderecosDto = new List<EnderecoDto>
+            {
+                new EnderecoDto { Id = Guid.NewGuid(), Logradouro = "Rua A", Numero = "123", PessoaId = pessoaId },
+                new EnderecoDto { Id = Guid.NewGuid(), Logradouro = "Rua B", Numero = "456", PessoaId = pessoaId }
+            };
+
+            _mockEnderecoRepository.Setup(r => r.GetByPessoaIdAsync(pessoaId)).ReturnsAsync(enderecos);
+            _mockMapper.Setup(m => m.Map<IEnumerable<EnderecoDto>>(enderecos)).Returns(enderecosDto);
+
+            // Act
+            var resultado = await _service.GetByPessoaIdAsync(pessoaId, paginationParams);
+
+            // Assert
+            Assert.NotNull(resultado);
+            Assert.Equal(2, resultado.TotalCount);
+            Assert.Equal(2, resultado.Items.Count());
+            Assert.Equal(1, resultado.CurrentPage);
+            Assert.Equal(10, resultado.PageSize);
+            _mockEnderecoRepository.Verify(r => r.GetByPessoaIdAsync(pessoaId), Times.Once);
+            _mockMapper.Verify(m => m.Map<IEnumerable<EnderecoDto>>(enderecos), Times.Once);
         }
 
         // GET BY ID

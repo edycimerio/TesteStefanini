@@ -35,6 +35,13 @@ namespace TesteStefanini.Application.Services
             return _mapper.Map<IEnumerable<EnderecoDto>>(enderecos);
         }
 
+        public async Task<PagedResult<EnderecoDto>> GetAllAsync(PaginationParams paginationParams)
+        {
+            var enderecos = await _enderecoRepository.GetAllAsync();
+            var enderecosDto = _mapper.Map<IEnumerable<EnderecoDto>>(enderecos);
+            return PagedResult<EnderecoDto>.Create(enderecosDto, paginationParams.PageNumber, paginationParams.PageSize);
+        }
+
         public async Task<EnderecoDto> GetByIdAsync(Guid id)
         {
             var endereco = await _enderecoRepository.GetByIdAsync(id);
@@ -48,6 +55,13 @@ namespace TesteStefanini.Application.Services
         {
             var enderecos = await _enderecoRepository.GetByPessoaIdAsync(pessoaId);
             return _mapper.Map<IEnumerable<EnderecoDto>>(enderecos);
+        }
+
+        public async Task<PagedResult<EnderecoDto>> GetByPessoaIdAsync(Guid pessoaId, PaginationParams paginationParams)
+        {
+            var enderecos = await _enderecoRepository.GetByPessoaIdAsync(pessoaId);
+            var enderecosDto = _mapper.Map<IEnumerable<EnderecoDto>>(enderecos);
+            return PagedResult<EnderecoDto>.Create(enderecosDto, paginationParams.PageNumber, paginationParams.PageSize);
         }
 
         public async Task<EnderecoDto> CreateAsync(CreateEnderecoDto enderecoDto)

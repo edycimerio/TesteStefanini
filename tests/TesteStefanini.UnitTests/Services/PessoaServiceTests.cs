@@ -50,11 +50,51 @@ namespace TesteStefanini.UnitTests.Services
             _mockMapper.Setup(m => m.Map<IEnumerable<PessoaDto>>(pessoas)).Returns(pessoasDto);
 
             // Act
-            var result = await _service.GetAllAsync();
+            var resultado = await _service.GetAllAsync();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Equal(2, result.Count());
+            Assert.NotNull(resultado);
+            Assert.Equal(2, resultado.Count());
+            _mockRepository.Verify(r => r.GetAllAsync(), Times.Once);
+            _mockMapper.Verify(m => m.Map<IEnumerable<PessoaDto>>(pessoas), Times.Once);
+        }
+
+        // GET ALL COM PAGINAÇÃO
+        [Fact]
+        public async Task GetAllAsync_ComPaginacao_DeveRetornarResultadoPaginado()
+        {
+            // Arrange
+            var paginationParams = new PaginationParams { PageNumber = 1, PageSize = 10 };
+            var pessoas = new List<Pessoa>
+            {
+                new Pessoa("João", "M", "joao@teste.com", DateTime.Now.AddYears(-30), "São Paulo", "Brasileiro", "12345678900"),
+                new Pessoa("Maria", "F", "maria@teste.com", DateTime.Now.AddYears(-25), "Rio de Janeiro", "Brasileira", "98765432100"),
+                new Pessoa("Pedro", "M", "pedro@teste.com", DateTime.Now.AddYears(-40), "Belo Horizonte", "Brasileiro", "11122233344")
+            };
+
+            var pessoasDto = new List<PessoaDto>
+            {
+                new PessoaDto { Id = Guid.NewGuid(), Nome = "João", CPF = "12345678900" },
+                new PessoaDto { Id = Guid.NewGuid(), Nome = "Maria", CPF = "98765432100" },
+                new PessoaDto { Id = Guid.NewGuid(), Nome = "Pedro", CPF = "11122233344" }
+            };
+
+            // Não precisamos criar um PagedResult manualmente, pois o serviço o criará
+
+            _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(pessoas);
+            _mockMapper.Setup(m => m.Map<IEnumerable<PessoaDto>>(pessoas)).Returns(pessoasDto);
+
+            // Act
+            var resultado = await _service.GetAllAsync(paginationParams);
+
+            // Assert
+            Assert.NotNull(resultado);
+            Assert.Equal(3, resultado.TotalCount);
+            Assert.Equal(3, resultado.Items.Count());
+            Assert.Equal(1, resultado.CurrentPage);
+            Assert.Equal(10, resultado.PageSize);
+            _mockRepository.Verify(r => r.GetAllAsync(), Times.Once);
+            _mockMapper.Verify(m => m.Map<IEnumerable<PessoaDto>>(pessoas), Times.Once);
         }
 
         // GET BY ID

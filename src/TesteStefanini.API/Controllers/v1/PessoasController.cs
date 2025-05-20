@@ -23,10 +23,18 @@ namespace TesteStefanini.API.Controllers.v1
 
         // GET: api/v1/pessoas
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PessoaDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<PessoaDto>>> GetAll([FromQuery] PaginationParams paginationParams = null)
         {
-            var pessoas = await _pessoaService.GetAllAsync();
-            return Ok(pessoas);
+            if (paginationParams == null)
+            {
+                var pessoas = await _pessoaService.GetAllAsync();
+                return Ok(pessoas);
+            }
+            else
+            {
+                var pessoasPaginadas = await _pessoaService.GetAllAsync(paginationParams);
+                return Ok(pessoasPaginadas);
+            }
         }
 
 

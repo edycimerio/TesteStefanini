@@ -45,7 +45,21 @@ namespace TesteStefanini.Application.Services
                 var enderecos = await _enderecoRepository.GetByPessoaIdAsync(pessoa.Id);
                 var endereco = enderecos.FirstOrDefault();
 
-                var pessoaDto = _mapper.Map<PessoaEnderecoDto>(pessoa);
+                var pessoaDto = new PessoaEnderecoDto
+                {
+                    Id = pessoa.Id,
+                    PessoaId = pessoa.Id,
+                    Nome = pessoa.Nome,
+                    Sexo = pessoa.Sexo,
+                    Email = pessoa.Email,
+                    DataNascimento = pessoa.DataNascimento,
+                    Naturalidade = pessoa.Naturalidade,
+                    Nacionalidade = pessoa.Nacionalidade,
+                    CPF = pessoa.CPF,
+                    DataCadastro = pessoa.DataCadastro,
+                    DataAtualizacao = pessoa.DataAtualizacao
+                };
+                
                 if (endereco != null)
                 {
                     pessoaDto.Endereco = _mapper.Map<EnderecoDto>(endereco);
@@ -55,6 +69,44 @@ namespace TesteStefanini.Application.Services
             }
 
             return pessoasDto;
+        }
+
+        public async Task<PagedResult<PessoaEnderecoDto>> GetAllAsync(PaginationParams paginationParams)
+        {
+            // Busca todas as pessoas
+            var pessoas = await _pessoaRepository.GetAllAsync();
+            var pessoasDto = new List<PessoaEnderecoDto>();
+
+            // Para cada pessoa, busca o endereço associado
+            foreach (var pessoa in pessoas)
+            {
+                var enderecos = await _enderecoRepository.GetByPessoaIdAsync(pessoa.Id);
+                var endereco = enderecos.FirstOrDefault();
+
+                var pessoaDto = new PessoaEnderecoDto
+                {
+                    Id = pessoa.Id,
+                    PessoaId = pessoa.Id,
+                    Nome = pessoa.Nome,
+                    Sexo = pessoa.Sexo,
+                    Email = pessoa.Email,
+                    DataNascimento = pessoa.DataNascimento,
+                    Naturalidade = pessoa.Naturalidade,
+                    Nacionalidade = pessoa.Nacionalidade,
+                    CPF = pessoa.CPF,
+                    DataCadastro = pessoa.DataCadastro,
+                    DataAtualizacao = pessoa.DataAtualizacao
+                };
+                
+                if (endereco != null)
+                {
+                    pessoaDto.Endereco = _mapper.Map<EnderecoDto>(endereco);
+                }
+
+                pessoasDto.Add(pessoaDto);
+            }
+
+            return PagedResult<PessoaEnderecoDto>.Create(pessoasDto, paginationParams.PageNumber, paginationParams.PageSize);
         }
 
         public async Task<PessoaEnderecoDto> GetByIdAsync(Guid id)
@@ -108,6 +160,63 @@ namespace TesteStefanini.Application.Services
             }
 
             return pessoaEnderecoDtos;
+        }
+
+        public async Task<PagedResult<PessoaEnderecoDto>> GetByPessoaIdAsync(Guid pessoaId, PaginationParams paginationParams)
+        {
+            // Busca a pessoa pelo ID
+            var pessoa = await _pessoaRepository.GetByIdAsync(pessoaId);
+            if (pessoa == null)
+                return new PagedResult<PessoaEnderecoDto>(new List<PessoaEnderecoDto>(), 0, paginationParams.PageNumber, paginationParams.PageSize);
+
+            // Busca os endereços associados à pessoa
+            var enderecos = await _enderecoRepository.GetByPessoaIdAsync(pessoaId);
+            
+            // Se não houver endereços, retorna apenas os dados da pessoa
+            if (!enderecos.Any())
+            {
+                var pessoaSemEnderecoDto = new PessoaEnderecoDto
+                {
+                    Id = pessoa.Id,
+                    PessoaId = pessoa.Id,
+                    Nome = pessoa.Nome,
+                    Sexo = pessoa.Sexo,
+                    Email = pessoa.Email,
+                    DataNascimento = pessoa.DataNascimento,
+                    Naturalidade = pessoa.Naturalidade,
+                    Nacionalidade = pessoa.Nacionalidade,
+                    CPF = pessoa.CPF,
+                    DataCadastro = pessoa.DataCadastro,
+                    DataAtualizacao = pessoa.DataAtualizacao
+                };
+                
+                return new PagedResult<PessoaEnderecoDto>(new List<PessoaEnderecoDto> { pessoaSemEnderecoDto }, 1, paginationParams.PageNumber, paginationParams.PageSize);
+            }
+
+            // Cria um DTO para cada combinação de pessoa e endereço
+            var pessoaEnderecoDtos = new List<PessoaEnderecoDto>();
+            foreach (var endereco in enderecos)
+            {
+                var pessoaEnderecoDto = new PessoaEnderecoDto
+                {
+                    Id = pessoa.Id,
+                    PessoaId = pessoa.Id,
+                    Nome = pessoa.Nome,
+                    Sexo = pessoa.Sexo,
+                    Email = pessoa.Email,
+                    DataNascimento = pessoa.DataNascimento,
+                    Naturalidade = pessoa.Naturalidade,
+                    Nacionalidade = pessoa.Nacionalidade,
+                    CPF = pessoa.CPF,
+                    DataCadastro = pessoa.DataCadastro,
+                    DataAtualizacao = pessoa.DataAtualizacao,
+                    Endereco = _mapper.Map<EnderecoDto>(endereco)
+                };
+                
+                pessoaEnderecoDtos.Add(pessoaEnderecoDto);
+            }
+
+            return PagedResult<PessoaEnderecoDto>.Create(pessoaEnderecoDtos, paginationParams.PageNumber, paginationParams.PageSize);
         }
 
         public async Task<PessoaEnderecoDto> CreateAsync(CreatePessoaEnderecoDto pessoaEnderecoDto)

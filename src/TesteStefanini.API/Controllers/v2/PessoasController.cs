@@ -25,10 +25,18 @@ namespace TesteStefanini.API.Controllers.v2
 
         // GET: api/v2/pessoas
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PessoaDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<PessoaDto>>> GetAll([FromQuery] PaginationParams paginationParams = null)
         {
-            var pessoas = await _pessoaService.GetAllAsync();
-            return Ok(pessoas);
+            if (paginationParams == null)
+            {
+                var pessoas = await _pessoaService.GetAllAsync();
+                return Ok(pessoas);
+            }
+            else
+            {
+                var pessoasPaginadas = await _pessoaService.GetAllAsync(paginationParams);
+                return Ok(pessoasPaginadas);
+            }
         }
 
         // GET: api/v2/pessoas/{id}
@@ -40,6 +48,22 @@ namespace TesteStefanini.API.Controllers.v2
                 return NotFound(new { message = "Pessoa não encontrada" });
 
             return Ok(pessoa);
+        }
+
+        // GET: api/v2/pessoas/completo
+        [HttpGet("completo")]
+        public async Task<ActionResult<IEnumerable<PessoaEnderecoDto>>> GetAllCompleto([FromQuery] PaginationParams paginationParams = null)
+        {
+            if (paginationParams == null)
+            {
+                var pessoasCompletas = await _pessoaEnderecoService.GetAllAsync();
+                return Ok(pessoasCompletas);
+            }
+            else
+            {
+                var pessoasCompletasPaginadas = await _pessoaEnderecoService.GetAllAsync(paginationParams);
+                return Ok(pessoasCompletasPaginadas);
+            }
         }
 
         // GET: api/v2/pessoas/{id}/completo

@@ -8,8 +8,10 @@ namespace TesteStefanini.Application.Interfaces
     public interface IPessoaEnderecoService
     {
         Task<IEnumerable<PessoaEnderecoDto>> GetAllAsync();
+        Task<PagedResult<PessoaEnderecoDto>> GetAllAsync(PaginationParams paginationParams);
         Task<PessoaEnderecoDto> GetByIdAsync(Guid id);
         Task<IEnumerable<PessoaEnderecoDto>> GetByPessoaIdAsync(Guid pessoaId);
+        Task<PagedResult<PessoaEnderecoDto>> GetByPessoaIdAsync(Guid pessoaId, PaginationParams paginationParams);
         Task<PessoaEnderecoDto> CreateAsync(CreatePessoaEnderecoDto pessoaEnderecoDto);
         Task<PessoaEnderecoDto> UpdateAsync(Guid id, UpdatePessoaEnderecoDto pessoaEnderecoDto);
         Task<bool> DeleteAsync(Guid id);

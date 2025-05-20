@@ -32,6 +32,13 @@ namespace TesteStefanini.Application.Services
             return _mapper.Map<IEnumerable<PessoaDto>>(pessoas);
         }
 
+        public async Task<PagedResult<PessoaDto>> GetAllAsync(PaginationParams paginationParams)
+        {
+            var pessoas = await _pessoaRepository.GetAllAsync();
+            var pessoasDto = _mapper.Map<IEnumerable<PessoaDto>>(pessoas);
+            return PagedResult<PessoaDto>.Create(pessoasDto, paginationParams.PageNumber, paginationParams.PageSize);
+        }
+
         public async Task<PessoaDto> GetByIdAsync(Guid id)
         {
             var pessoa = await _pessoaRepository.GetByIdAsync(id);

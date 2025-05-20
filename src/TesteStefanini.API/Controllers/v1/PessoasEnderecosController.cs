@@ -23,10 +23,18 @@ namespace TesteStefanini.API.Controllers.v1
 
         // GET: api/v1/pessoas-enderecos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PessoaEnderecoDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<PessoaEnderecoDto>>> GetAll([FromQuery] PaginationParams paginationParams = null)
         {
-            var pessoasEnderecos = await _pessoaEnderecoService.GetAllAsync();
-            return Ok(pessoasEnderecos);
+            if (paginationParams == null)
+            {
+                var pessoasEnderecos = await _pessoaEnderecoService.GetAllAsync();
+                return Ok(pessoasEnderecos);
+            }
+            else
+            {
+                var pessoasEnderecosPaginados = await _pessoaEnderecoService.GetAllAsync(paginationParams);
+                return Ok(pessoasEnderecosPaginados);
+            }
         }
 
         // GET: api/v1/pessoas-enderecos/{id}
@@ -42,10 +50,18 @@ namespace TesteStefanini.API.Controllers.v1
 
         // GET: api/v1/pessoas-enderecos/pessoa/{pessoaId}
         [HttpGet("pessoa/{pessoaId}")]
-        public async Task<ActionResult<IEnumerable<PessoaEnderecoDto>>> GetByPessoaId(Guid pessoaId)
+        public async Task<ActionResult<IEnumerable<PessoaEnderecoDto>>> GetByPessoaId(Guid pessoaId, [FromQuery] PaginationParams paginationParams = null)
         {
-            var pessoaEnderecos = await _pessoaEnderecoService.GetByPessoaIdAsync(pessoaId);
-            return Ok(pessoaEnderecos);
+            if (paginationParams == null)
+            {
+                var pessoaEnderecos = await _pessoaEnderecoService.GetByPessoaIdAsync(pessoaId);
+                return Ok(pessoaEnderecos);
+            }
+            else
+            {
+                var pessoaEnderecosPaginados = await _pessoaEnderecoService.GetByPessoaIdAsync(pessoaId, paginationParams);
+                return Ok(pessoaEnderecosPaginados);
+            }
         }
 
         // POST: api/v1/pessoas-enderecos

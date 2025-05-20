@@ -23,10 +23,18 @@ namespace TesteStefanini.API.Controllers.v1
 
         // GET: api/v1/enderecos
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EnderecoDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<EnderecoDto>>> GetAll([FromQuery] PaginationParams paginationParams = null)
         {
-            var enderecos = await _enderecoService.GetAllAsync();
-            return Ok(enderecos);
+            if (paginationParams == null)
+            {
+                var enderecos = await _enderecoService.GetAllAsync();
+                return Ok(enderecos);
+            }
+            else
+            {
+                var enderecosPaginados = await _enderecoService.GetAllAsync(paginationParams);
+                return Ok(enderecosPaginados);
+            }
         }
 
         // GET: api/v1/enderecos/{id}
@@ -38,6 +46,22 @@ namespace TesteStefanini.API.Controllers.v1
                 return NotFound(new { message = "Endereço não encontrado" });
 
             return Ok(endereco);
+        }
+
+        // GET: api/v1/enderecos/pessoa/{pessoaId}
+        [HttpGet("pessoa/{pessoaId}")]
+        public async Task<ActionResult<IEnumerable<EnderecoDto>>> GetByPessoaId(Guid pessoaId, [FromQuery] PaginationParams paginationParams = null)
+        {
+            if (paginationParams == null)
+            {
+                var enderecos = await _enderecoService.GetByPessoaIdAsync(pessoaId);
+                return Ok(enderecos);
+            }
+            else
+            {
+                var enderecosPaginados = await _enderecoService.GetByPessoaIdAsync(pessoaId, paginationParams);
+                return Ok(enderecosPaginados);
+            }
         }
 
         // POST: api/v1/enderecos
