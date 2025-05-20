@@ -9,6 +9,7 @@ namespace TesteStefanini.Application.Interfaces
     {
         Task<IEnumerable<PessoaEnderecoDto>> GetAllAsync();
         Task<PessoaEnderecoDto> GetByIdAsync(Guid id);
+        Task<IEnumerable<PessoaEnderecoDto>> GetByPessoaIdAsync(Guid pessoaId);
         Task<PessoaEnderecoDto> CreateAsync(CreatePessoaEnderecoDto pessoaEnderecoDto);
         Task<PessoaEnderecoDto> UpdateAsync(Guid id, UpdatePessoaEnderecoDto pessoaEnderecoDto);
         Task<bool> DeleteAsync(Guid id);

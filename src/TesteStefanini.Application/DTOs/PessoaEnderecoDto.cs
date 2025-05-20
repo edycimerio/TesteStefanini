@@ -7,6 +7,7 @@ namespace TesteStefanini.Application.DTOs
     public class PessoaEnderecoDto
     {
         public Guid Id { get; set; }
+        public Guid PessoaId { get; set; } // ID da pessoa para referência
         public string Nome { get; set; }
         public string Sexo { get; set; }
         public string Email { get; set; }

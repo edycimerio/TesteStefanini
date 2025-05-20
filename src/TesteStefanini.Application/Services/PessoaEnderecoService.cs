@@ -70,12 +70,44 @@ namespace TesteStefanini.Application.Services
 
             // Mapeia para o DTO
             var pessoaDto = _mapper.Map<PessoaEnderecoDto>(pessoa);
+            pessoaDto.PessoaId = pessoa.Id;
             if (endereco != null)
             {
                 pessoaDto.Endereco = _mapper.Map<EnderecoDto>(endereco);
             }
 
             return pessoaDto;
+        }
+
+        public async Task<IEnumerable<PessoaEnderecoDto>> GetByPessoaIdAsync(Guid pessoaId)
+        {
+            // Busca a pessoa pelo ID
+            var pessoa = await _pessoaRepository.GetByIdAsync(pessoaId);
+            if (pessoa == null)
+                return new List<PessoaEnderecoDto>();
+
+            // Busca os endereços associados à pessoa
+            var enderecos = await _enderecoRepository.GetByPessoaIdAsync(pessoaId);
+            
+            // Se não houver endereços, retorna apenas os dados da pessoa
+            if (!enderecos.Any())
+            {
+                var pessoaSemEnderecoDto = _mapper.Map<PessoaEnderecoDto>(pessoa);
+                pessoaSemEnderecoDto.PessoaId = pessoa.Id;
+                return new List<PessoaEnderecoDto> { pessoaSemEnderecoDto };
+            }
+
+            // Cria um DTO para cada combinação de pessoa e endereço
+            var pessoaEnderecoDtos = new List<PessoaEnderecoDto>();
+            foreach (var endereco in enderecos)
+            {
+                var pessoaEnderecoDto = _mapper.Map<PessoaEnderecoDto>(pessoa);
+                pessoaEnderecoDto.PessoaId = pessoa.Id;
+                pessoaEnderecoDto.Endereco = _mapper.Map<EnderecoDto>(endereco);
+                pessoaEnderecoDtos.Add(pessoaEnderecoDto);
+            }
+
+            return pessoaEnderecoDtos;
         }
 
         public async Task<PessoaEnderecoDto> CreateAsync(CreatePessoaEnderecoDto pessoaEnderecoDto)
@@ -129,6 +161,7 @@ namespace TesteStefanini.Application.Services
 
             // Retorna o DTO com os dados das entidades criadas
             var pessoaEnderecoResultDto = _mapper.Map<PessoaEnderecoDto>(pessoa);
+            pessoaEnderecoResultDto.PessoaId = pessoa.Id;
             pessoaEnderecoResultDto.Endereco = _mapper.Map<EnderecoDto>(endereco);
 
             return pessoaEnderecoResultDto;
