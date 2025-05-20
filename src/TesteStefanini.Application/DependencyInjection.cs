@@ -18,6 +18,7 @@ namespace TesteStefanini.Application
             services.AddScoped<IEnderecoService, EnderecoService>();
             services.AddScoped<IPessoaEnderecoService, PessoaEnderecoService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUsuarioService, UsuarioService>();
 
             // Registra os validadores
             services.AddScoped<IValidator<Pessoa>, PessoaValidator>();

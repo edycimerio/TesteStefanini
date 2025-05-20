@@ -43,7 +43,7 @@ namespace TesteStefanini.Application.Services
 
         public async Task<PessoaDto> CreateAsync(CreatePessoaDto pessoaDto)
         {
-            // Mapeia o DTO para a entidade
+
             var pessoa = _mapper.Map<Pessoa>(pessoaDto);
             
             // Valida a entidade
@@ -51,25 +51,25 @@ namespace TesteStefanini.Application.Services
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            // Verifica se o CPF já existe
+
             if (await _pessoaRepository.CpfJaExisteAsync(pessoa.CPF))
                 throw new ValidationException("CPF já cadastrado para outra pessoa.");
 
-            // Persiste a entidade
+
             await _pessoaRepository.AddAsync(pessoa);
             
-            // Retorna o DTO com os dados da entidade criada
+
             return _mapper.Map<PessoaDto>(pessoa);
         }
 
         public async Task<PessoaDto> UpdateAsync(Guid id, UpdatePessoaDto pessoaDto)
         {
-            // Busca a pessoa pelo ID
+
             var pessoa = await _pessoaRepository.GetByIdAsync(id);
             if (pessoa == null)
                 return null;
 
-            // Atualiza os dados da pessoa
+
             pessoa.Atualizar(
                 pessoaDto.Nome,
                 pessoaDto.Sexo,
@@ -84,20 +84,20 @@ namespace TesteStefanini.Application.Services
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            // Persiste as alterações
+
             await _pessoaRepository.UpdateAsync(pessoa);
             
-            // Retorna o DTO com os dados atualizados
+
             return _mapper.Map<PessoaDto>(pessoa);
         }
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            // Verifica se a pessoa existe
+
             if (!await _pessoaRepository.ExistsAsync(id))
                 return false;
 
-            // Remove a pessoa
+
             await _pessoaRepository.DeleteAsync(id);
             return true;
         }

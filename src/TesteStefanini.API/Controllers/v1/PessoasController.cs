@@ -29,7 +29,7 @@ namespace TesteStefanini.API.Controllers.v1
             return Ok(pessoas);
         }
 
-        // GET: api/v1/pessoas/{id}
+
         [HttpGet("{id}")]
         public async Task<ActionResult<PessoaDto>> GetById(Guid id)
         {
@@ -40,7 +40,7 @@ namespace TesteStefanini.API.Controllers.v1
             return Ok(pessoa);
         }
 
-        // POST: api/v1/pessoas
+
         [HttpPost]
         public async Task<ActionResult<PessoaDto>> Create([FromBody] CreatePessoaDto pessoaDto)
         {
@@ -62,7 +62,7 @@ namespace TesteStefanini.API.Controllers.v1
             }
         }
 
-        // PUT: api/v1/pessoas/{id}
+
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePessoaDto pessoaDto)
         {
@@ -87,7 +87,7 @@ namespace TesteStefanini.API.Controllers.v1
             }
         }
 
-        // DELETE: api/v1/pessoas/{id}
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {

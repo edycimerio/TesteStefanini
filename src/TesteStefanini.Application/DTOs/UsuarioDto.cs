@@ -26,4 +26,12 @@ namespace TesteStefanini.Application.DTOs
         public string Nome { get; set; }
         public string Email { get; set; }
     }
+
+    // DTO para criação de usuário
+    public class CreateUsuarioDto
+    {
+        public string Nome { get; set; }
+        public string Email { get; set; }
+        public string Senha { get; set; }
+    }
 }

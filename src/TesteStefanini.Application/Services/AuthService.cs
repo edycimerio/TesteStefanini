@@ -24,18 +24,16 @@ namespace TesteStefanini.Application.Services
 
         public async Task<TokenDto> LoginAsync(LoginDto loginDto)
         {
-            // Busca o usuário pelo email
+
             var usuario = await _usuarioRepository.GetByEmailAsync(loginDto.Email);
             if (usuario == null)
                 return null;
 
-            // Verifica a senha
-            // Em um cenário real, a senha seria verificada usando hash e salt
-            // Para simplificar, estamos apenas comparando a senha diretamente
+
             if (!VerificarSenha(loginDto.Senha, usuario.Senha, usuario.Salt))
                 return null;
 
-            // Gera o token JWT
+
             var token = GerarToken(usuario.Id.ToString(), usuario.Nome, usuario.Email);
 
             return new TokenDto
@@ -49,10 +47,14 @@ namespace TesteStefanini.Application.Services
 
         private bool VerificarSenha(string senhaInformada, string senhaArmazenada, string salt)
         {
-            // Em um cenário real, a senha seria verificada usando hash e salt
-            // Para simplificar, estamos apenas comparando a senha diretamente
-            // Isso seria substituído por uma implementação segura em produção
-            return senhaArmazenada == senhaInformada;
+
+            using var sha256 = System.Security.Cryptography.SHA256.Create();
+            var passwordWithSalt = senhaInformada + salt;
+            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(passwordWithSalt));
+            var senhaInformadaHash = Convert.ToBase64String(hashedBytes);
+            
+
+            return senhaArmazenada == senhaInformadaHash;
         }
 
         private string GerarToken(string userId, string nome, string email)

@@ -5,23 +5,24 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
+using TesteStefanini.API;
 using TesteStefanini.Application;
 using TesteStefanini.Infrastructure;
 using TesteStefanini.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuração da string de conexão para SQLite
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Adiciona os serviços de infraestrutura (repositórios)
+
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// Adiciona os serviços de aplicação
+
 builder.Services.AddApplication(builder.Configuration);
 
-// Configuração do JWT
+
 var jwtSettingsSection = builder.Configuration.GetSection("Jwt");
 builder.Services.Configure<JwtSettings>(jwtSettingsSection);
 
@@ -49,17 +50,15 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Adiciona controladores com opções
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // Para evitar referências circulares no JSON
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-        // Para manter o padrão de nomenclatura em camelCase
         options.JsonSerializerOptions.PropertyNamingPolicy = null;
     });
 
-// Configuração do Swagger com suporte a versionamento
+
 builder.Services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new ApiVersion(1, 0);
@@ -80,7 +79,7 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "TesteStefanini API", Version = "v1" });
     c.SwaggerDoc("v2", new OpenApiInfo { Title = "TesteStefanini API", Version = "v2" });
     
-    // Configuração para autenticação JWT no Swagger
+
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
@@ -106,7 +105,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Configuração do CORS
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -118,7 +117,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configuração do pipeline de requisições HTTP
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -128,26 +127,37 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v2/swagger.json", "TesteStefanini API v2");
     });
     
-    // Cria o banco de dados automaticamente em ambiente de desenvolvimento
+
     using (var scope = app.Services.CreateScope())
     {
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         dbContext.Database.EnsureCreated();
+        
+
+        SeedData.Initialize(scope.ServiceProvider);
     }
 }
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
-// Middleware de autenticação
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
+
+app.MapDelete("/api/limpar-usuarios", async (ApplicationDbContext dbContext) => {
+    var usuarios = dbContext.Usuarios.ToList();
+    dbContext.Usuarios.RemoveRange(usuarios);
+    await dbContext.SaveChangesAsync();
+    return Results.Ok(new { message = "Tabela de usuários limpa com sucesso" });
+});
+
 app.Run();
 
-// Classe para configuração do JWT
+
 public class JwtSettings
 {
     public string Key { get; set; }
